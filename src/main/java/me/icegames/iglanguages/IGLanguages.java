@@ -16,7 +16,6 @@ public class IGLanguages extends JavaPlugin {
         saveDefaultConfig();
         this.langManager = new LangManager(this);
         langManager.loadAll();
-        getLogger().info("Loaded all languages!");
         getLogger().info("Loaded " + langManager.getTranslations().size() + " languages!");
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {

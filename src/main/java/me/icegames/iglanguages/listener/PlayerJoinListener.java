@@ -1,6 +1,7 @@
 package me.icegames.iglanguages.listener;
 
 import me.icegames.iglanguages.manager.LangManager;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -16,23 +17,16 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        UUID uuid = event.getPlayer().getUniqueId();
-        // Garante default ao entrar
-        langManager.setPlayerLang(uuid, langManager.getPlayerLang(uuid));
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        String lang = langManager.getPlayerLang(uuid);
+
+        // Se o jogador não tem linguagem definida (usa o default), pede para escolher
+        if (lang == null || lang.equalsIgnoreCase("pt_br")) {
+            player.sendMessage("§eBem-vindo! Por favor, selecione seu idioma:");
+            player.sendMessage("§aDigite: /lang set <seu_nome> <idioma>");
+            player.sendMessage("§eExemplo: /lang set " + player.getName() + " en_us");
+            // Aqui você pode melhorar para abrir um menu ou usar mensagens clicáveis
+        }
     }
 }
-
-//public class PlayerJoinListener implements org.bukkit.event.Listener {
-//    private final me.icegames.iglanguages.manager.LangManager langManager;
-//
-//    public PlayerJoinListener(me.icegames.iglanguages.manager.LangManager langManager) {
-//        this.langManager = langManager;
-//    }
-//
-//    @org.bukkit.event.EventHandler
-//    public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
-//        org.bukkit.entity.Player player = event.getPlayer();
-//        String lang = langManager.getPlayerLang(player.getUniqueId());
-//        player.sendMessage(langManager.getTranslation(player.getUniqueId(), "welcome.message"));
-//    }
-//}
