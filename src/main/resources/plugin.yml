@@ -1,3 +1,5 @@
 name: IGLanguages
 version: '${project.version}'
+author: 'IceGames'
 main: me.icegames.iglanguages.IGLanguages
+depend: [PlaceholderAPI]
