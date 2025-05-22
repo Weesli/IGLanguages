@@ -137,10 +137,14 @@ public class IGLanguages extends JavaPlugin {
         File langsFolder = new File(getDataFolder(), "langs");
         if (!langsFolder.exists()) langsFolder.mkdirs();
         File exampleFolder = new File(langsFolder, "pt_br");
-        if (!exampleFolder.exists()) exampleFolder.mkdirs();
-        File exampleFile = new File(exampleFolder, "example.yml");
-        if (!exampleFile.exists()) {
+        if (!exampleFolder.exists()) {
+            exampleFolder.mkdirs();
             saveResource("langs/pt_br/example.yml", false);
+        }
+        File exampleFolder2 = new File(langsFolder, "en_us");
+        if (!exampleFolder2.exists()) {
+            exampleFolder2.mkdirs();
+            saveResource("langs/en_us/example.yml", false);
         }
     }
 
