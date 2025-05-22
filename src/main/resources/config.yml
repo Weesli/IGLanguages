@@ -1,14 +1,46 @@
+#  ___ ____ _
+# |_ _/ ___| |    __ _ _ __   __ _ _   _  __ _  __ _  ___  ___
+#  | | |  _| |   / _` | '_ \ / _` | | | |/ _` |/ _` |/ _ \/ __|
+#  | | |_| | |__| (_| | | | | (_| | |_| | (_| | (_| |  __/\__ \
+# |___\____|_____\__,_|_| |_|\__, |\__,_|\__,_|\__, |\___||___/
+#                            |___/             |___/
 # Author: IceGames
-# Permissions: iglanguages.admin
-# PlaceholderAPI placeholders: %lang_(path)%, %lang_player%, %lang_player_(nick)%
+# Admin permission: iglanguages.admin
+#
+# PlaceholderAPI placeholders supported:
+#   %lang_(key)%           - Shows the translation for the key in the player's language
+#   %lang_player%          - Shows the player's current language
+#   %lang_player_(nick)%   - Shows the specified player's language
+#
+# Examples:
+#   %lang_welcome%         - Shows the translation for the 'welcome' key
+#   %lang_messages.hello%  - Shows the translation for the 'messages.hello' key
+#
+# Available actions for firstJoinActions and actionsOnSet:
+#   message: <message>             - Sends a normal message to the player
+#   centered_message: <message>    - Sends a centered message to the player
+#   title: <title>;<subtitle>      - Shows a title to the player
+#   playsound: <sound>;<volume>;<pitch> - Plays a sound for the player
+#   playsound_resource_pack: <sound>;<volume>;<pitch> - Plays a sound from a resource pack
+#   console_command: <command>     - Executes a command as console (use %player% for the player's name)
+#   player_command: <command>      - Makes the player execute a command
+#
+# Placeholders available in actions:
+#   %player%      - Player's name
+#   %lang%        - Player's current language
+#   PlaceholderAPI placeholders are also supported in messages/actions
+#
 
-# Default plugin language.
-# If a translation is not found in the player's language, the translation from this language will be used as a fallback.
+# Default language for the plugin.
+# If a translation is not found in the player's language, this language will be used as fallback.
 defaultLang: pt_br
 
-# Cache settings.
+# Translation cache size (improves performance, but uses more memory).
 translationCacheSize: 500
 
+# Storage configuration for player languages:
+# type: yaml, sqlite or mysql
+# Data from yaml it's automatically migrated to sqlite or mysql.
 storage:
   type: sqlite # yaml, sqlite or mysql
   mysql:
@@ -23,27 +55,28 @@ storage:
       connectTimeout: 5000
       characterEncoding: utf8
 
+# Actions executed the first time a player joins the server.
 firstJoinActions:
   - "message: &7 "
-  - "message: &cWelcome to the server!"
-  - "message: &cYou can use /languages list to see the available languages."
+  - "centered_message: &cWelcome to the server!"
+  - "centered_message: &cYou can use /languages list to see the available languages."
   - "message: &7 "
-  - "sound: LEVEL_UP;1;0.1"
+  - "playsound: LEVEL_UP;1;0.1"
   - "console_command: say %player% joined the server for the first time"
 
-# Individual actions for each language on join/set.
+# Per-language actions when setting/changing a player's language.
 actionsOnSet:
   pt_br:
     - "message: &7 "
-    - "message: &cVocê definiu o idioma para português."
-    - "message: &cVocê pode usar /languages list para ver os idiomas disponíveis."
+    - "centered_message: &cVocê definiu o idioma para português."
+    - "centered_message: &cVocê pode usar /languages list para ver os idiomas disponíveis."
     - "message: &7 "
-    - "sound: LEVEL_UP;1;0.1"
+    - "playsound: LEVEL_UP;1;0.1"
     - "console_command: say %player% definiu o idioma para português"
   en_us:
     - "message: &7 "
-    - "message: &cYou set the language to English."
-    - "message: &cYou can use /languages list to see the available languages."
+    - "centered_message: &cYou set the language to English."
+    - "centered_message: &cYou can use /languages list to see the available languages."
     - "message: &7 "
-    - "sound: LEVEL_UP;1;0.1"
+    - "playsound: LEVEL_UP;1;0.1"
     - "console_command: say %player% set the language to English"

@@ -1,10 +1,39 @@
-welcome: "&aBem-vindo ao servidor, %player_name%!"
-permission_error: "&cVocê não tem permissão para isso."
-messages:
-  bye: "&eAté logo, %player_name%!"
-  notice:
-    important: "&cAtenção! Manutenção em breve."
-    light: "&eLembre-se de se divertir!"
-notifications:
-  join: "&a%player_name% entrou no servidor!"
-  leave: "&c%player_name% saiu do servidor!"
+# --- Exemplos úteis para donos de servidor ---
+# Exemplo de Uso: %lang_holograms_spawn_line1% ou %lang_holograms_spawn_line2%
+
+holograms:
+  spawn: 
+    line1: "&bBem-vindo à área inicial!"
+    line2: "&eÀ sua frente está o hub principal."
+  shop: "&eClique com o direito para abrir o menu da loja."
+
+quests:
+  start: "&aMissão iniciada: %quest_name%!"
+  complete: "&6Parabéns! Você completou a missão: %quest_name%."
+  progress: "&eProgresso da missão: %progress%/%total%"
+
+npc_dialogues:
+  blacksmith:
+    greeting: "&7[Ferreiro] &fOlá, aventureiro! Precisa consertar seus equipamentos?"
+    repair_offer: "&7[Ferreiro] &ePosso arrumar seus itens por um preço justo."
+  wizard:
+    greeting: "&d[Mago] &fA magia está em todo lugar, se você souber onde procurar."
+    quest_offer: "&d[Mago] &eTraga-me 5 cristais mágicos e eu te recompensarei."
+
+scoreboard:
+  title: "&6Seus Status"
+  kills: "&cAbates: &f%kills%"
+  deaths: "&cMortes: &f%mortes%"
+  balance: "&aSaldo: &fR$%saldo%"
+
+gui:
+  shop_title: "&eLoja do Servidor"
+  buy_button: "&aComprar"
+  sell_button: "&cVender"
+  close_button: "&7Fechar"
+
+tips:
+  1: "&bDica: &fUse /spawn para voltar à área principal."
+  2: "&bDica: &fComplete missões para ganhar recompensas extras!"
+  3: "&bDica: &fEntre no nosso Discord para novidades e eventos."
+

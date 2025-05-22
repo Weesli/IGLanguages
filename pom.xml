@@ -6,7 +6,7 @@
 
   <groupId>me.icegames</groupId>
   <artifactId>IGLanguages</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
 
   <name>IGLanguages</name>
@@ -31,6 +31,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.2.4</version>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>me.icegames.iglanguages</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
         <executions>
           <execution>
             <phase>package</phase>
@@ -67,6 +75,12 @@
       <version>1.8.8-R0.1-SNAPSHOT</version>
       <scope>system</scope>
       <systemPath>${project.basedir}/dependencies/spigot.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>org.bstats</groupId>
+      <artifactId>bstats-bukkit</artifactId>
+      <version>3.0.2</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>me.clip</groupId>

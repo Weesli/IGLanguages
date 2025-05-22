@@ -9,6 +9,7 @@ import me.icegames.iglanguages.storage.PlayerLangStorage;
 import me.icegames.iglanguages.storage.YamlPlayerLangStorage;
 import me.icegames.iglanguages.storage.SQLitePlayerLangStorage;
 import me.icegames.iglanguages.storage.MySQLPlayerLangStorage;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,6 +44,9 @@ public class IGLanguages extends JavaPlugin {
         long startTime = System.currentTimeMillis();
 
         startingBanner();
+
+        int pluginId = 25945;
+        Metrics metrics = new Metrics(this, pluginId);
 
         saveDefaultConfig();
         saveDefaultMessagesConfig();

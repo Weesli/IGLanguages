@@ -1,10 +1,37 @@
-welcome: "&aWelcome to the server, %player_name%!"
-permission_error: "&cYou do not have permission for this."
-messages:
-  bye: "&eSee you soon, %player_name%!"
-  notice:
-    important: "&cAttention! Maintenance soon."
-    light: "&eRemember to have fun!"
-notifications:
-  join: "&a%player_name% joined the server!"
-  leave: "&c%player_name% left the server!"
+# --- Useful examples for server owners ---
+
+holograms:
+  spawn:
+    line1: "&bWelcome to the spawn area!"
+    line2: "&eIn front of you is the main hub."
+  shop: "&eRight-click to open the shop menu."
+
+quests:
+  start: "&aQuest started: %quest_name%!"
+  complete: "&6Congratulations! You completed the quest: %quest_name%."
+  progress: "&eQuest progress: %progress%/%total%"
+
+npc_dialogues:
+  blacksmith:
+    greeting: "&7[Blacksmith] &fHello, adventurer! Need your gear repaired?"
+    repair_offer: "&7[Blacksmith] &eI can fix your items for a fair price."
+  wizard:
+    greeting: "&d[Wizard] &fMagic is everywhere, if you know where to look."
+    quest_offer: "&d[Wizard] &eBring me 5 magic crystals and I'll reward you."
+
+scoreboard:
+  title: "&6Your Stats"
+  kills: "&cKills: &f%kills%"
+  deaths: "&cDeaths: &f%deaths%"
+  balance: "&aBalance: &f$%balance%"
+
+gui:
+  shop_title: "&eServer Shop"
+  buy_button: "&aBuy"
+  sell_button: "&cSell"
+  close_button: "&7Close"
+
+tips:
+  1: "&bTip: &fUse /spawn to return to the main area."
+  2: "&bTip: &fComplete quests for extra rewards!"
+  3: "&bTip: &fCheck out our Discord for news and events."

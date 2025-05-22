@@ -43,8 +43,14 @@ public class ActionsManager {
         if (data.contains("%player%")) {
             data = data.replace("%player%", player.getName());
         }
+        if (data.contains("%lang%")) {
+            data = data.replace("%lang%", plugin.getLangManager().getPlayerLang(player.getUniqueId()));
+        }
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             data = PlaceholderAPI.setPlaceholders(player, data);
+        }
+        if (data.contains("&")) {
+            data = data.replace("&", "§");
         }
         switch (type) {
             case "message":
@@ -62,16 +68,21 @@ public class ActionsManager {
                 break;
             case "playsound_resource_pack":
                 processResourceSound(data, player);
+                break;
             case "console_command":
                 String cmd = data;
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
                 Bukkit.dispatchCommand(console, cmd);
+                break;
+            case "player_command":
+                player.performCommand(data);
                 break;
             case "centered_message":
                 StringUtil.centeredMessage(data.replace("%player%", player.getName()));
                 break;
             case "title":
                 showTitle(player, data);
+                break;
             default:
                 break;
         }

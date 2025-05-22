@@ -51,7 +51,7 @@ public class LangManager {
                         for (String key : config.getKeys(false)) {
                             Object value = config.get(key);
                             if (value instanceof ConfigurationSection) {
-                                flattenSection((ConfigurationSection) value, key + ".", langMap);
+                                flattenSectionUnderscore((ConfigurationSection) value, key + "_", langMap);
                             } else if (value != null) {
                                 langMap.put(key.toLowerCase(), value.toString());
                             }
@@ -64,12 +64,12 @@ public class LangManager {
         loadPlayerLanguages();
     }
 
-    private void flattenSection(ConfigurationSection section, String prefix, Map<String, String> map) {
+    private void flattenSectionUnderscore(ConfigurationSection section, String prefix, Map<String, String> map) {
         if (section == null) return;
         for (String key : section.getKeys(false)) {
             Object value = section.get(key);
             if (value instanceof ConfigurationSection) {
-                flattenSection((ConfigurationSection) value, prefix + key + ".", map);
+                flattenSectionUnderscore((ConfigurationSection) value, prefix + key + "_", map);
             } else if (value != null) {
                 map.put((prefix + key).toLowerCase(), value.toString());
             }
@@ -127,6 +127,26 @@ public class LangManager {
 
     public String getTranslation(Player player, String key) {
         String lang = playerLang.getOrDefault(player.getUniqueId(), defaultLang);
+        String cacheKey = lang + ":" + key.toLowerCase();
+
+        if (translationCache.containsKey(cacheKey)) {
+            return translationCache.get(cacheKey);
+        }
+
+        Map<String, String> langMap = translations.getOrDefault(lang, Collections.emptyMap());
+        Map<String, String> defaultMap = translations.getOrDefault(defaultLang, Collections.emptyMap());
+        String translation = langMap.getOrDefault(key.toLowerCase(), defaultMap.get(key.toLowerCase()));
+
+        if (translation == null) {
+            translation = "§c<?>§r";
+        }
+
+        translationCache.put(cacheKey, translation);
+
+        return translation.replace("&", "§");
+    }
+
+    public String getLangTranslation(String lang, String key) {
         String cacheKey = lang + ":" + key.toLowerCase();
 
         if (translationCache.containsKey(cacheKey)) {
