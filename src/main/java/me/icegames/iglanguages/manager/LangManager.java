@@ -1,98 +1,152 @@
 package me.icegames.iglanguages.manager;
 
+import me.icegames.iglanguages.IGLanguages;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.icegames.iglanguages.storage.PlayerLangStorage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class LangManager {
-    private final JavaPlugin plugin;
+    private final IGLanguages plugin;
+    private final PlayerLangStorage playerLangStorage;
+    public final Map<UUID, String> playerLang = new HashMap<>();
     private final Map<String, Map<String, String>> translations = new HashMap<>();
-    private final Map<UUID, String> playerLang = new HashMap<>();
-    private final File playerFile;
-    private YamlConfiguration playerConfig;
-    private final String defaultLang = "pt_br";
+    private final Map<String, String> translationCache;
+    private final String defaultLang;
 
-    public LangManager(JavaPlugin plugin) {
+    public LangManager(IGLanguages plugin, PlayerLangStorage storage) {
         this.plugin = plugin;
-        this.playerFile = new File(plugin.getDataFolder(), "languages.yml");
-        this.playerConfig = YamlConfiguration.loadConfiguration(playerFile);
+        this.playerLangStorage = storage;
+        this.defaultLang = plugin.getConfig().getString("defaultLang", "pt_br");
+        loadPlayerLanguages();
+        int cacheSize = plugin.getConfig().getInt("translationCacheSize", 500);
+        this.translationCache = new LinkedHashMap<String, String>(cacheSize, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                return size() > cacheSize;
+            }
+        };
     }
 
     public void loadAll() {
+        translations.clear();
         File langsFolder = new File(plugin.getDataFolder(), "langs");
         if (!langsFolder.exists()) langsFolder.mkdirs();
 
-        for (File langDir : Objects.requireNonNull(langsFolder.listFiles(File::isDirectory))) {
-            String langCode = langDir.getName().toLowerCase();
-            Map<String, String> map = new HashMap<>();
-            for (File file : Objects.requireNonNull(langDir.listFiles((f, n) -> n.endsWith(".yml")))) {
-                YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
-                for (String key : cfg.getKeys(false)) {
-                    ConfigurationSection sec = cfg.getConfigurationSection(key);
-                    flattenSection(sec, key, map);
+        File[] langDirs = langsFolder.listFiles(File::isDirectory);
+        if (langDirs != null) {
+            for (File langDir : langDirs) {
+                String lang = langDir.getName().toLowerCase();
+                Map<String, String> langMap = new HashMap<>();
+                File[] files = langDir.listFiles((dir, name) -> name.endsWith(".yml"));
+                if (files != null) {
+                    for (File file : files) {
+                        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+                        for (String key : config.getKeys(false)) {
+                            Object value = config.get(key);
+                            if (value instanceof ConfigurationSection) {
+                                flattenSection((ConfigurationSection) value, key + ".", langMap);
+                            } else if (value != null) {
+                                langMap.put(key.toLowerCase(), value.toString());
+                            }
+                        }
+                    }
                 }
+                translations.put(lang, langMap);
             }
-            translations.put(langCode, map);
         }
         loadPlayerLanguages();
     }
 
-    private void flattenSection(ConfigurationSection section, String path, Map<String, String> map) {
+    private void flattenSection(ConfigurationSection section, String prefix, Map<String, String> map) {
+        if (section == null) return;
         for (String key : section.getKeys(false)) {
             Object value = section.get(key);
-            String fullPath = path + "." + key;
             if (value instanceof ConfigurationSection) {
-                flattenSection((ConfigurationSection) value, fullPath, map);
-            } else {
-                map.put(fullPath.toLowerCase(), value.toString());
+                flattenSection((ConfigurationSection) value, prefix + key + ".", map);
+            } else if (value != null) {
+                map.put((prefix + key).toLowerCase(), value.toString());
             }
         }
     }
 
-    public String getTranslation(UUID playerId, String key) {
-        String lang = playerLang.getOrDefault(playerId, defaultLang);
-        return translations.getOrDefault(lang, translations.get(defaultLang))
-                .getOrDefault(key.toLowerCase(), "§c<?>§r");
-    }
-
-    public void setPlayerLang(UUID playerId, String lang) {
-        playerLang.put(playerId, lang.toLowerCase());
-    }
-
-    public String getPlayerLang(UUID playerId) {
-        return playerLang.getOrDefault(playerId, defaultLang);
-    }
-
-    private void loadPlayerLanguages() {
-        if (playerConfig.isConfigurationSection("players")) {
-            for (String key : playerConfig.getConfigurationSection("players").getKeys(false)) {
-                try {
-                    UUID uuid = UUID.fromString(key);
-                    String lang = playerConfig.getString("players." + key, defaultLang);
-                    playerLang.put(uuid, lang);
-                } catch (IllegalArgumentException ignored) {}
-            }
-        }
+    public void loadPlayerLanguages() {
+        playerLang.clear();
+        playerLang.putAll(playerLangStorage.loadAll());
     }
 
     public void savePlayerLanguages() {
-        playerConfig.set("players", null);
-        for (Map.Entry<UUID, String> e : playerLang.entrySet()) {
-            playerConfig.set("players." + e.getKey().toString(), e.getValue());
-        }
-        try {
-            playerConfig.save(playerFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Error on saving languages.yml");
+        for (Map.Entry<UUID, String> entry : playerLang.entrySet()) {
+            playerLangStorage.savePlayerLang(entry.getKey(), entry.getValue());
         }
     }
 
-    public Collection<Object> getTranslations() {
-        return Collections.singleton(translations.values());
+    public void setPlayerLang(UUID uuid, String lang) {
+        playerLang.put(uuid, lang);
+        playerLangStorage.savePlayerLang(uuid, lang);
+    }
+
+    public String getPlayerLang(UUID uuid) {
+        return playerLang.get(uuid);
+    }
+
+    public boolean hasPlayerLang(UUID uuid) {
+        return playerLangStorage.hasPlayerLang(uuid);
+    }
+
+    public void savePlayerLang(UUID uuid) {
+        String lang = playerLang.get(uuid);
+        if (lang != null) playerLangStorage.savePlayerLang(uuid, lang);
+    }
+
+    public String getDefaultLang() {
+        return defaultLang;
+    }
+
+    public Map<String, Map<String, String>> getTranslations() {
+        return translations;
+    }
+
+    public List<String> getAvailableLangs() {
+        return new ArrayList<>(translations.keySet());
+    }
+
+    public int getTotalTranslationsCount() {
+        int total = 0;
+        for (Map<String, String> langMap : translations.values()) {
+            total += langMap.size();
+        }
+        return total;
+    }
+
+    public String getTranslation(Player player, String key) {
+        String lang = playerLang.getOrDefault(player.getUniqueId(), defaultLang);
+        String cacheKey = lang + ":" + key.toLowerCase();
+
+        if (translationCache.containsKey(cacheKey)) {
+            return translationCache.get(cacheKey);
+        }
+
+        Map<String, String> langMap = translations.getOrDefault(lang, Collections.emptyMap());
+        Map<String, String> defaultMap = translations.getOrDefault(defaultLang, Collections.emptyMap());
+        String translation = langMap.getOrDefault(key.toLowerCase(), defaultMap.get(key.toLowerCase()));
+
+        if (translation == null) {
+            translation = "§c<?>§r";
+        }
+
+        translationCache.put(cacheKey, translation);
+
+        return translation.replace("&", "§");
+    }
+
+    public void clearCache() {
+        translationCache.clear();
     }
 }

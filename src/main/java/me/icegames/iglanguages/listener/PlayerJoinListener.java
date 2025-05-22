@@ -1,5 +1,7 @@
 package me.icegames.iglanguages.listener;
 
+import me.icegames.iglanguages.IGLanguages;
+import me.icegames.iglanguages.manager.ActionsManager;
 import me.icegames.iglanguages.manager.LangManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,24 +11,27 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
-    private final LangManager langManager;
 
-    public PlayerJoinListener(LangManager langManager) {
+    private final IGLanguages plugin;
+    private final LangManager langManager;
+    private final ActionsManager actionsManager;
+
+    public PlayerJoinListener(LangManager langManager, ActionsManager actionsManager, IGLanguages plugin) {
         this.langManager = langManager;
+        this.actionsManager = actionsManager;
+        this.plugin = plugin;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        String lang = langManager.getPlayerLang(uuid);
-
-        // Se o jogador não tem linguagem definida (usa o default), pede para escolher
-        if (lang == null || lang.equalsIgnoreCase("pt_br")) {
-            player.sendMessage("§eBem-vindo! Por favor, selecione seu idioma:");
-            player.sendMessage("§aDigite: /lang set <seu_nome> <idioma>");
-            player.sendMessage("§eExemplo: /lang set " + player.getName() + " en_us");
-            // Aqui você pode melhorar para abrir um menu ou usar mensagens clicáveis
+        if (!langManager.hasPlayerLang(uuid)) {
+            langManager.setPlayerLang(uuid, plugin.getConfig().getString("defaultLang"));
+            langManager.savePlayerLang(uuid);
+            // Só executa se realmente for o primeiro join (não existe no players.yml)
+            actionsManager.executeActionsPath(player, "firstJoinActions");
         }
+        // Não executa firstJoinActions se já existir no players.yml
     }
 }

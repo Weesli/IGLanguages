@@ -20,6 +20,27 @@ public class LangExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("player")) {
             return langManager.getPlayerLang(p.getUniqueId());
         }
-        return langManager.getTranslation(p.getUniqueId(), params);
+        if (params.toLowerCase().startsWith("player_")) {
+            String targetName = params.substring("player_".length());
+            Player target = org.bukkit.Bukkit.getPlayerExact(targetName);
+            if (target != null) {
+                return langManager.getPlayerLang(target.getUniqueId());
+            } else {
+                java.util.UUID uuid = null;
+                for (java.util.UUID id : langManager.playerLang.keySet()) {
+                    org.bukkit.OfflinePlayer off = org.bukkit.Bukkit.getOfflinePlayer(id);
+                    if (off.getName() != null && off.getName().equalsIgnoreCase(targetName)) {
+                        uuid = id;
+                        break;
+                    }
+                }
+                if (uuid != null) {
+                    return langManager.getPlayerLang(uuid);
+                } else {
+                    return "§cUnknown player!";
+                }
+            }
+        }
+        return langManager.getTranslation(p, params);
     }
 }

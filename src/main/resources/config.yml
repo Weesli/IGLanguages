@@ -1,0 +1,49 @@
+# Author: IceGames
+# Permissions: iglanguages.admin
+# PlaceholderAPI placeholders: %lang_(path)%, %lang_player%, %lang_player_(nick)%
+
+# Default plugin language.
+# If a translation is not found in the player's language, the translation from this language will be used as a fallback.
+defaultLang: pt_br
+
+# Cache settings.
+translationCacheSize: 500
+
+storage:
+  type: sqlite # yaml, sqlite or mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: iglanguages
+    user: root
+    password: password
+    properties:
+      autoReconnect: true
+      useSSL: false
+      connectTimeout: 5000
+      characterEncoding: utf8
+
+firstJoinActions:
+  - "message: &7 "
+  - "message: &cWelcome to the server!"
+  - "message: &cYou can use /languages list to see the available languages."
+  - "message: &7 "
+  - "sound: LEVEL_UP;1;0.1"
+  - "console_command: say %player% joined the server for the first time"
+
+# Individual actions for each language on join/set.
+actionsOnSet:
+  pt_br:
+    - "message: &7 "
+    - "message: &cVocê definiu o idioma para português."
+    - "message: &cVocê pode usar /languages list para ver os idiomas disponíveis."
+    - "message: &7 "
+    - "sound: LEVEL_UP;1;0.1"
+    - "console_command: say %player% definiu o idioma para português"
+  en_us:
+    - "message: &7 "
+    - "message: &cYou set the language to English."
+    - "message: &cYou can use /languages list to see the available languages."
+    - "message: &7 "
+    - "sound: LEVEL_UP;1;0.1"
+    - "console_command: say %player% set the language to English"

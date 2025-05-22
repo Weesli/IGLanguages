@@ -1,38 +1,146 @@
 package me.icegames.iglanguages;
 
 import me.icegames.iglanguages.command.LangCommand;
+import me.icegames.iglanguages.listener.PlayerJoinListener;
+import me.icegames.iglanguages.manager.ActionsManager;
 import me.icegames.iglanguages.manager.LangManager;
 import me.icegames.iglanguages.placeholder.LangExpansion;
-import me.icegames.iglanguages.listener.PlayerJoinListener;
+import me.icegames.iglanguages.storage.PlayerLangStorage;
+import me.icegames.iglanguages.storage.YamlPlayerLangStorage;
+import me.icegames.iglanguages.storage.SQLitePlayerLangStorage;
+import me.icegames.iglanguages.storage.MySQLPlayerLangStorage;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public class IGLanguages extends JavaPlugin {
 
+    public static IGLanguages plugin;
     private LangManager langManager;
+    private ActionsManager actionsManager;
+    private FileConfiguration messagesConfig;
+    PlayerLangStorage storage;
+
+    private final String pluginName = "Languages";
+    private final String pluginDescription = "The Multi-Language Plugin";
+    private final String consolePrefix = "\u001B[1;30m[\u001B[0m\u001B[36mI\u001B[1;36mG\u001B[0m\u001B[1;37m" + pluginName + "\u001B[1;30m]\u001B[0m ";
+
+    private void startingBanner() {
+        System.out.println("\u001B[36m  ___ \u001B[0m\u001B[1;36m____   \u001B[0m");
+        System.out.println("\u001B[36m |_ _\u001B[0m\u001B[1;36m/ ___|  \u001B[0m ");
+        System.out.println("\u001B[36m  | \u001B[0m\u001B[1;36m| |  _   \u001B[0m \u001B[36mI\u001B[0m\u001B[1;36mG\u001B[0m\u001B[1;37m" + pluginName + " \u001B[1;36mv" + getDescription().getVersion() + "\u001B[0m by \u001B[1;36mIceGames");
+        System.out.println("\u001B[36m  | \u001B[0m\u001B[1;36m| |_| |  \u001B[0m \u001B[1;30m" + pluginDescription);
+        System.out.println("\u001B[36m |___\u001B[0m\u001B[1;36m\\____| \u001B[0m");
+        System.out.println("\u001B[36m         \u001B[0m");
+    }
 
     @Override
     public void onEnable() {
+        plugin = this;
+
+        long startTime = System.currentTimeMillis();
+
+        startingBanner();
+
         saveDefaultConfig();
-        this.langManager = new LangManager(this);
+        saveDefaultMessagesConfig();
+        saveDefaultExamples();
+
+        initDatabase();
+
+        this.langManager = new LangManager(this, storage);
         langManager.loadAll();
-        getLogger().info("Loaded " + langManager.getTranslations().size() + " languages!");
+        System.out.println(consolePrefix + "Configuration successfully loaded.");
+        System.out.println(consolePrefix + "Loaded " + langManager.getAvailableLangs().size() + " languages! " + langManager.getAvailableLangs());
+        System.out.println(consolePrefix + "Loaded " + langManager.getTotalTranslationsCount() + " total translations!");
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new LangExpansion(langManager).register();
-            getLogger().info("Registered PlaceholderAPI expansion.");
+            System.out.println(consolePrefix + "Registered PlaceholderAPI expansion.");
         } else {
             getLogger().warning("Could not find PlaceholderAPI! This plugin is required.");
             getLogger().warning("Disabling IGLanguages...");
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        getCommand("lang").setExecutor(new LangCommand(langManager));
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(langManager), this);
+        this.actionsManager = new ActionsManager(this);
+        getCommand("lang").setExecutor(new LangCommand(langManager, getMessagesConfig(), actionsManager));
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(langManager, actionsManager, this), this);
+
+        long endTime = System.currentTimeMillis();
+        System.out.println(consolePrefix + "\u001B[1;32mPlugin loaded successfully in " + (endTime - startTime) + "ms\u001B[0m");
     }
 
-    @Override
-    public void onDisable() {
-        langManager.savePlayerLanguages();
+    private void initDatabase() {
+        String storageType = getConfig().getString("storage.type", "yaml").toLowerCase();
+        System.out.println(consolePrefix + "Loading storage...");
+        if (storageType.equals("sqlite")) {
+            try {
+                storage = new SQLitePlayerLangStorage(getDataFolder() + "/players.db");
+                migrateYamlToStorage(storage);
+            } catch (Exception e) {
+                getLogger().severe("Error on connecting to SQLite! Using YAML.");
+                storage = new YamlPlayerLangStorage(new File(getDataFolder(), "players.yml"));
+            }
+        } else if (storageType.equals("mysql")) {
+            try {
+                String host = getConfig().getString("storage.mysql.host");
+                int port = getConfig().getInt("storage.mysql.port");
+                String db = getConfig().getString("storage.mysql.database");
+                String user = getConfig().getString("storage.mysql.user");
+                String pass = getConfig().getString("storage.mysql.password");
+                storage = new MySQLPlayerLangStorage(host, port, db, user, pass);
+                migrateYamlToStorage(storage);
+            } catch (Exception e) {
+                getLogger().severe("Error on connecting to MySQL! Using YAML.");
+                storage = new YamlPlayerLangStorage(new File(getDataFolder(), "players.yml"));
+            }
+        } else {
+            storage = new YamlPlayerLangStorage(new File(getDataFolder(), "players.yml"));
+        }
+        System.out.println(consolePrefix + "Database successfully initialized (" + storageType.toUpperCase() + ")");
+    }
+
+    private void migrateYamlToStorage(PlayerLangStorage targetStorage) {
+        String storageType = getConfig().getString("storage.type").toLowerCase();
+        File yamlFile = new File(getDataFolder(), "players.yml");
+        if (!yamlFile.exists()) return;
+        YamlPlayerLangStorage yamlStorage = new YamlPlayerLangStorage(yamlFile);
+        for (java.util.Map.Entry<java.util.UUID, String> entry : yamlStorage.loadAll().entrySet()) {
+            targetStorage.savePlayerLang(entry.getKey(), entry.getValue());
+        }
+        getLogger().info("Migrated " + yamlStorage.loadAll().size() + " players from YAML to " + storageType.toUpperCase());
+    }
+
+    public FileConfiguration getMessagesConfig() {
+        if (messagesConfig == null) {
+            File messagesFile = new File(getDataFolder(), "messages.yml");
+            messagesConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(messagesFile);
+        }
+        return messagesConfig;
+    }
+
+    private void saveDefaultMessagesConfig() {
+        File messagesFile = new File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            saveResource("messages.yml", false);
+        }
+    }
+
+    private void saveDefaultExamples() {
+        File langsFolder = new File(getDataFolder(), "langs");
+        if (!langsFolder.exists()) langsFolder.mkdirs();
+        File exampleFolder = new File(langsFolder, "pt_br");
+        if (!exampleFolder.exists()) exampleFolder.mkdirs();
+        File exampleFile = new File(exampleFolder, "example.yml");
+        if (!exampleFile.exists()) {
+            saveResource("langs/pt_br/example.yml", false);
+        }
+    }
+
+    public LangManager getLangManager() {
+        return langManager;
     }
 }

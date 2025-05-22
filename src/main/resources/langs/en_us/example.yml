@@ -1,0 +1,10 @@
+welcome: "&aWelcome to the server, %player_name%!"
+permission_error: "&cYou do not have permission for this."
+messages:
+  bye: "&eSee you soon, %player_name%!"
+  notice:
+    important: "&cAttention! Maintenance soon."
+    light: "&eRemember to have fun!"
+notifications:
+  join: "&a%player_name% joined the server!"
+  leave: "&c%player_name% left the server!"
