@@ -70,7 +70,7 @@ public class IGLanguages extends JavaPlugin {
         }
 
         this.actionsManager = new ActionsManager(this);
-        getCommand("lang").setExecutor(new LangCommand(langManager, getMessagesConfig(), actionsManager));
+        getCommand("lang").setExecutor(new LangCommand(langManager, getMessagesConfig(), actionsManager, this));
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(langManager, actionsManager, this), this);
 
         long endTime = System.currentTimeMillis();

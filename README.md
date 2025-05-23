@@ -12,13 +12,13 @@ A powerful and flexible language management plugin for Minecraft servers, suppor
 - 🔗 **PlaceholderAPI integration** for easy use in other plugins.
 - 🛠️ **Customizable join/set actions** per language.
 - 🔄 **Automatic migration** from YAML to database storage.
-- 📝 **Easy configuration** via `config.yml`.
+- 📝 **Easy configuration** via `messageConfig.yml`.
 
 ---
 
 ## Configuration
 
-### `config.yml` Overview
+### `messageConfig.yml` Overview
 
 - **defaultLang**: Default language (e.g., `pt_br`). Used as fallback.
 - **translationCacheSize**: Max entries in the LRU cache (default: 500).
