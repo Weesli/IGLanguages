@@ -46,7 +46,7 @@ public class LangManager {
             for (File langDir : langDirs) {
                 String lang = langDir.getName().toLowerCase();
                 if (!LangEnum.isValidCode(lang)) {
-                    plugin.getLogger().warning("Invalid folder language: " + langDir.getName());
+                    plugin.getLogger().warning("Invalid language folder: " + langDir.getName());
                     continue;
                 }
                 Map<String, String> langMap = new HashMap<>();

@@ -78,24 +78,11 @@ public class ActionsManager {
                 player.performCommand(data);
                 break;
             case "centered_message":
-                StringUtil.centeredMessage(data.replace("%player%", player.getName()));
-                break;
-            case "title":
-                showTitle(player, data);
+                player.sendMessage(getCenteredMessage(data));
                 break;
             default:
                 break;
         }
-    }
-
-    private void showTitle(Player player, String data) {
-        String[] parts = data.split(";");
-        if (parts.length < 3) return;
-
-        String title = ChatColor.translateAlternateColorCodes('&', parts[0]);
-        String subtitle = ChatColor.translateAlternateColorCodes('&', parts[1]);
-
-        player.sendTitle(title, subtitle);
     }
 
     private void processResourceSound(String content, Player player) {
@@ -111,5 +98,40 @@ public class ActionsManager {
             } catch (IllegalArgumentException ignored) {
             }
         }
+    }
+
+    public static String getCenteredMessage(String message){
+        int CENTER_PX = 154;
+        int messagePxSize = 0;
+        boolean previousCode = false;
+        boolean isBold = false;
+
+        for(char c : message.toCharArray()){
+            if(c == '§'){
+                previousCode = true;
+                continue;
+            }else if(previousCode == true){
+                previousCode = false;
+                if(c == 'l' || c == 'L'){
+                    isBold = true;
+                    continue;
+                }else isBold = false;
+            }else{
+                StringUtil.DefaultFontInfo dFI = StringUtil.DefaultFontInfo.getDefaultFontInfo(c);
+                messagePxSize += isBold ? dFI.getBoldLength() : dFI.getLength();
+                messagePxSize++;
+            }
+        }
+
+        int halvedMessageSize = messagePxSize / 2;
+        int toCompensate = CENTER_PX - halvedMessageSize;
+        int spaceLength = StringUtil.DefaultFontInfo.SPACE.getLength() + 1;
+        int compensated = 0;
+        StringBuilder sb = new StringBuilder();
+        while(compensated < toCompensate){
+            sb.append(" ");
+            compensated += spaceLength;
+        }
+        return (sb.toString() + message);
     }
 }

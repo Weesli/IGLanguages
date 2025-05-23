@@ -19,7 +19,6 @@
 # Available actions for firstJoinActions and actionsOnSet:
 #   message: <message>             - Sends a normal message to the player
 #   centered_message: <message>    - Sends a centered message to the player
-#   title: <title>;<subtitle>      - Shows a title to the player
 #   playsound: <sound>;<volume>;<pitch> - Plays a sound for the player
 #   playsound_resource_pack: <sound>;<volume>;<pitch> - Plays a sound from a resource pack
 #   console_command: <command>     - Executes a command as console (use %player% for the player's name)
