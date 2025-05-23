@@ -1,5 +1,7 @@
 package me.icegames.iglanguages;
 
+import com.jeff_media.updatechecker.UpdateCheckSource;
+import com.jeff_media.updatechecker.UpdateChecker;
 import me.icegames.iglanguages.command.LangCommand;
 import me.icegames.iglanguages.listener.PlayerJoinListener;
 import me.icegames.iglanguages.manager.ActionsManager;
@@ -11,6 +13,7 @@ import me.icegames.iglanguages.storage.SQLitePlayerLangStorage;
 import me.icegames.iglanguages.storage.MySQLPlayerLangStorage;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,15 +26,18 @@ public class IGLanguages extends JavaPlugin {
     private ActionsManager actionsManager;
     private FileConfiguration messagesConfig;
     PlayerLangStorage storage;
+    private static final String SPIGOT_RESOURCE_ID = "125318";
 
     private final String pluginName = "Languages";
+    private final String pluginCompleteName = "IGLanguages";
+    private final String pluginVersion = getDescription().getVersion();
     private final String pluginDescription = "The Multi-Language Plugin";
     private final String consolePrefix = "\u001B[1;30m[\u001B[0m\u001B[36mI\u001B[1;36mG\u001B[0m\u001B[1;37m" + pluginName + "\u001B[1;30m]\u001B[0m ";
 
     private void startingBanner() {
         System.out.println("\u001B[36m  ___ \u001B[0m\u001B[1;36m____   \u001B[0m");
         System.out.println("\u001B[36m |_ _\u001B[0m\u001B[1;36m/ ___|  \u001B[0m ");
-        System.out.println("\u001B[36m  | \u001B[0m\u001B[1;36m| |  _   \u001B[0m \u001B[36mI\u001B[0m\u001B[1;36mG\u001B[0m\u001B[1;37m" + pluginName + " \u001B[1;36mv" + getDescription().getVersion() + "\u001B[0m by \u001B[1;36mIceGames");
+        System.out.println("\u001B[36m  | \u001B[0m\u001B[1;36m| |  _   \u001B[0m \u001B[36mI\u001B[0m\u001B[1;36mG\u001B[0m\u001B[1;37m" + pluginName + " \u001B[1;36mv" + pluginVersion + "\u001B[0m by \u001B[1;36mIceGames");
         System.out.println("\u001B[36m  | \u001B[0m\u001B[1;36m| |_| |  \u001B[0m \u001B[1;30m" + pluginDescription);
         System.out.println("\u001B[36m |___\u001B[0m\u001B[1;36m\\____| \u001B[0m");
         System.out.println("\u001B[36m         \u001B[0m");
@@ -70,8 +76,35 @@ public class IGLanguages extends JavaPlugin {
         }
 
         this.actionsManager = new ActionsManager(this);
-        getCommand("lang").setExecutor(new LangCommand(langManager, getMessagesConfig(), actionsManager, this));
+        getCommand("lang").setExecutor(new LangCommand(langManager, actionsManager, this));
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(langManager, actionsManager, this), this);
+
+        new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
+                .checkEveryXHours(24)
+                .setDownloadLink("https://www.spigotmc.org/resources/iglanguages.125318/")
+                .setSupportLink("https://discord.gg/qGqRxx3V2J")
+                .setNotifyByPermissionOnJoin("iglanguages.updatechecker")
+                .setNotifyOpsOnJoin(true)
+                .onSuccess((commandSenders, latestVersion) -> {
+                    for (CommandSender sender : commandSenders) {
+                        sender.sendMessage(consolePrefix + "§fRunning update checker...");
+                        if (UpdateChecker.isOtherVersionNewer(pluginVersion, latestVersion)) {
+                            sender.sendMessage(consolePrefix + "§c" + pluginCompleteName + " has a new version available.");
+                            sender.sendMessage(consolePrefix + "§cYour version: §7" + pluginVersion + "§c | Latest version: §a" + latestVersion);
+                            sender.sendMessage(consolePrefix + "§cDownload it at: §bhttps://www.spigotmc.org/resources/iglanguages.125318/");
+                        } else {
+                            sender.sendMessage(consolePrefix + "§a" + pluginCompleteName + " is up to date! §8(§bv" + pluginVersion + "§8)");
+                        }
+                    }
+                })
+                .onFail((commandSenders, exception) -> {
+                    for (CommandSender sender : commandSenders) {
+                        sender.sendMessage(consolePrefix + "§fRunning update checker...");
+                        sender.sendMessage("§c" + pluginCompleteName + " failed to check for updates.");
+                    }
+                })
+                .setNotifyRequesters(false)
+                .checkNow();
 
         long endTime = System.currentTimeMillis();
         System.out.println(consolePrefix + "\u001B[1;32mPlugin loaded successfully in " + (endTime - startTime) + "ms\u001B[0m");
@@ -151,4 +184,5 @@ public class IGLanguages extends JavaPlugin {
     public LangManager getLangManager() {
         return langManager;
     }
+
 }

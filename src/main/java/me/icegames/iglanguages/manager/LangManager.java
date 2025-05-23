@@ -3,6 +3,8 @@ package me.icegames.iglanguages.manager;
 import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
 import me.icegames.iglanguages.IGLanguages;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.icegames.iglanguages.command.LangCommand;
+import me.icegames.iglanguages.util.MessageUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -47,6 +49,7 @@ public class LangManager {
                 String lang = langDir.getName().toLowerCase();
                 if (!LangEnum.isValidCode(lang)) {
                     plugin.getLogger().warning("Invalid language folder: " + langDir.getName());
+                    plugin.getLogger().warning("Please use a valid language code as the folder name. Codes avaliable: " + LangEnum.getAllCodes());
                     continue;
                 }
                 Map<String, String> langMap = new HashMap<>();
@@ -145,7 +148,7 @@ public class LangManager {
         String translation = langMap.getOrDefault(key.toLowerCase(), defaultMap.get(key.toLowerCase()));
 
         if (translation == null) {
-            translation = "§c<?>§r";
+            translation = MessageUtil.getMessage(plugin.getMessagesConfig(),"translation_not_found", "{key}", key);
         }
 
         translationCache.put(cacheKey, translation);
@@ -165,7 +168,7 @@ public class LangManager {
         String translation = langMap.getOrDefault(key.toLowerCase(), defaultMap.get(key.toLowerCase()));
 
         if (translation == null) {
-            translation = "§c<?>§r";
+            translation = MessageUtil.getMessage(plugin.getMessagesConfig(),"translation_not_found", "{key}", key);
         }
 
         translationCache.put(cacheKey, translation);

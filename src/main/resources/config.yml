@@ -14,7 +14,7 @@
 #
 # Examples:
 #   %lang_welcome%         - Shows the translation for the 'welcome' key
-#   %lang_messages.hello%  - Shows the translation for the 'messages.hello' key
+#   %lang_messages_hello%  - Shows the translation for the 'messages.hello' key
 #
 # Available actions for firstJoinActions and actionsOnSet:
 #   message: <message>             - Sends a normal message to the player
@@ -41,7 +41,7 @@ translationCacheSize: 500
 # type: yaml, sqlite or mysql
 # Data from yaml it's automatically migrated to sqlite or mysql.
 storage:
-  type: sqlite # yaml, sqlite or mysql
+  type: yaml # yaml, sqlite or mysql
   mysql:
     host: localhost
     port: 3306
@@ -62,6 +62,7 @@ firstJoinActions:
   - "message: &7 "
   - "playsound: LEVEL_UP;1;0.1"
   - "console_command: say %player% joined the server for the first time"
+  - "console_command: A COMMAND TO OPEN THE LANGUAGE MENU SELECTION"
 
 # Per-language actions when setting/changing a player's language.
 actionsOnSet:
