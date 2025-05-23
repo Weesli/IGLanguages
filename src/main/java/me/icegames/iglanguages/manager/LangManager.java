@@ -1,5 +1,6 @@
 package me.icegames.iglanguages.manager;
 
+import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
 import me.icegames.iglanguages.IGLanguages;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -7,6 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import me.icegames.iglanguages.storage.PlayerLangStorage;
+import me.icegames.iglanguages.util.LangEnum;
 
 import java.io.File;
 import java.util.*;
@@ -23,7 +25,7 @@ public class LangManager {
     public LangManager(IGLanguages plugin, PlayerLangStorage storage) {
         this.plugin = plugin;
         this.playerLangStorage = storage;
-        this.defaultLang = plugin.getConfig().getString("defaultLang", "pt_br");
+        this.defaultLang = plugin.getConfig().getString("defaultLang");
         loadPlayerLanguages();
         int cacheSize = plugin.getConfig().getInt("translationCacheSize", 500);
         this.translationCache = new LinkedHashMap<String, String>(cacheSize, 0.75f, true) {
@@ -43,6 +45,10 @@ public class LangManager {
         if (langDirs != null) {
             for (File langDir : langDirs) {
                 String lang = langDir.getName().toLowerCase();
+                if (!LangEnum.isValidCode(lang)) {
+                    plugin.getLogger().warning("Invalid folder language: " + langDir.getName());
+                    continue;
+                }
                 Map<String, String> langMap = new HashMap<>();
                 File[] files = langDir.listFiles((dir, name) -> name.endsWith(".yml"));
                 if (files != null) {
@@ -88,6 +94,7 @@ public class LangManager {
     }
 
     public void setPlayerLang(UUID uuid, String lang) {
+        lang.toLowerCase();
         playerLang.put(uuid, lang);
         playerLangStorage.savePlayerLang(uuid, lang);
     }

@@ -3,11 +3,13 @@ package me.icegames.iglanguages.listener;
 import me.icegames.iglanguages.IGLanguages;
 import me.icegames.iglanguages.manager.ActionsManager;
 import me.icegames.iglanguages.manager.LangManager;
+import me.icegames.iglanguages.util.LangEnum;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.io.File;
 import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
@@ -27,11 +29,22 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         if (!langManager.hasPlayerLang(uuid)) {
-            langManager.setPlayerLang(uuid, plugin.getConfig().getString("defaultLang"));
+            String playerLocale = player.spigot().getLocale();
+            String selectedLang = plugin.getConfig().getString("defaultLang");
+            if (playerLocale == null || playerLocale.isEmpty()) {
+                playerLocale = plugin.getConfig().getString("defaultLang");
+            }
+            if (LangEnum.isValidCode(playerLocale)) {
+                File langsFolder = new File(plugin.getDataFolder(), "langs");
+                File langFolder = new File(langsFolder, playerLocale);
+                if (langFolder.exists()) {
+                    selectedLang = playerLocale;
+                }
+            }
+
+            langManager.setPlayerLang(uuid, selectedLang);
             langManager.savePlayerLang(uuid);
-            // Só executa se realmente for o primeiro join (não existe no players.yml)
             actionsManager.executeActionsPath(player, "firstJoinActions");
         }
-        // Não executa firstJoinActions se já existir no players.yml
     }
 }

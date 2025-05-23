@@ -1,9 +1,9 @@
 // src/main/java/me/icegames/iglanguages/command/LangCommand.java
 package me.icegames.iglanguages.command;
 
-import me.icegames.iglanguages.IGLanguages;
 import me.icegames.iglanguages.manager.ActionsManager;
 import me.icegames.iglanguages.manager.LangManager;
+import me.icegames.iglanguages.IGLanguages;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,19 +17,21 @@ public class LangCommand implements CommandExecutor {
 
     private final LangManager langManager;
     private final ActionsManager actionsManager;
-    private final FileConfiguration config;
+    private final FileConfiguration messageConfig;
+    private final IGLanguages plugin;
 
-    public LangCommand(LangManager langManager, FileConfiguration config, ActionsManager actionsManager) {
+    public LangCommand(LangManager langManager, FileConfiguration messageConfig, ActionsManager actionsManager, IGLanguages plugin) {
         this.langManager = langManager;
-        this.config = config;
+        this.messageConfig = messageConfig;
         this.actionsManager = actionsManager;
+        this.plugin = plugin;
     }
 
     private String getMessage(String path, String... placeholders) {
-        Object messageObj = config.get(path);
+        Object messageObj = messageConfig.get(path);
         String message;
         String finalMessage;
-        String prefix = config.getString("prefix");
+        String prefix = messageConfig.getString("prefix");
 
         if (messageObj instanceof String) {
             message = (String) messageObj;
@@ -61,7 +63,7 @@ public class LangCommand implements CommandExecutor {
         }
 
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            Object helpObj = config.get("help");
+            Object helpObj = messageConfig.get("help");
             if (helpObj instanceof List) {
                 @SuppressWarnings("unchecked")
                 List<String> helpList = (List<String>) helpObj;
@@ -75,6 +77,7 @@ public class LangCommand implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("reload")) {
+            plugin.reloadConfig();
             langManager.loadAll();
             langManager.clearCache();
             String consolePrefix = "\u001B[1;30m[\u001B[0m\u001B[36mI\u001B[1;36mG\u001B[0m\u001B[1;37m" + "Languages" + "\u001B[1;30m]\u001B[0m ";
@@ -100,7 +103,7 @@ public class LangCommand implements CommandExecutor {
                 langManager.setPlayerLang(target.getUniqueId(), lang);
                 langManager.savePlayerLang(target.getUniqueId());
                 sender.sendMessage(getMessage("set_success", "{player}", target.getName(), "{lang}", lang));
-                actionsManager.executeActionsOnSet(target, lang); // Use a instância correta
+                actionsManager.executeActionsOnSet(target, lang);
             } else {
                 sender.sendMessage(getMessage("set_usage"));
             }
