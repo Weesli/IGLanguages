@@ -89,7 +89,7 @@ public class IGLanguages extends JavaPlugin {
                 .onSuccess((commandSenders, latestVersion) -> {
                     for (CommandSender sender : commandSenders) {
                         sender.sendMessage(consolePrefix + "§fRunning update checker...");
-                        if (UpdateChecker.isOtherVersionNewer(pluginVersion, latestVersion)) {
+                        if (UpdateChecker.isOtherVersionNewer(latestVersion, pluginVersion)) {
                             sender.sendMessage(consolePrefix + "§c" + pluginCompleteName + " has a new version available.");
                             sender.sendMessage(consolePrefix + "§cYour version: §7" + pluginVersion + "§c | Latest version: §a" + latestVersion);
                             sender.sendMessage(consolePrefix + "§cDownload it at: §bhttps://www.spigotmc.org/resources/iglanguages.125318/");
