@@ -42,6 +42,7 @@ public class PlayerJoinListener implements Listener {
                 }
             }
 
+            selectedLang = selectedLang.toLowerCase();
             langManager.setPlayerLang(uuid, selectedLang);
             langManager.savePlayerLang(uuid);
             actionsManager.executeActionsPath(player, "firstJoinActions");

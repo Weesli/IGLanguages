@@ -16,6 +16,11 @@ public class LangExpansion extends PlaceholderExpansion {
     @Override public String getVersion()    { return "1.0.0"; }
 
     @Override
+    public boolean persist() {
+        return true;
+    }
+
+    @Override
     public String onPlaceholderRequest(Player p, String params) {
         if (params.equalsIgnoreCase("player")) {
             return langManager.getPlayerLang(p.getUniqueId());
