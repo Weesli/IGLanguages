@@ -1,6 +1,5 @@
 package me.icegames.iglanguages.manager;
 
-import jdk.nashorn.internal.runtime.UnwarrantedOptimismException;
 import me.icegames.iglanguages.IGLanguages;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.icegames.iglanguages.command.LangCommand;
@@ -113,6 +112,7 @@ public class LangManager {
     public void savePlayerLang(UUID uuid) {
         String lang = playerLang.get(uuid);
         if (lang != null) playerLangStorage.savePlayerLang(uuid, lang);
+        plugin.LogDebug("Saved player language " + lang);
     }
 
     public String getDefaultLang() {
@@ -140,7 +140,8 @@ public class LangManager {
         String cacheKey = lang + ":" + key.toLowerCase();
 
         if (translationCache.containsKey(cacheKey)) {
-            return translationCache.get(cacheKey);
+            String cached = translationCache.get(cacheKey);
+            return PlaceholderAPI.setPlaceholders(player, cached.replace("&", "§"));
         }
 
         Map<String, String> langMap = translations.getOrDefault(lang, Collections.emptyMap());
@@ -153,7 +154,8 @@ public class LangManager {
 
         translationCache.put(cacheKey, translation);
 
-        return translation.replace("&", "§");
+        String result = PlaceholderAPI.setPlaceholders(player, translation.replace("&", "§"));
+        return result;
     }
 
     public String getLangTranslation(String lang, String key) {

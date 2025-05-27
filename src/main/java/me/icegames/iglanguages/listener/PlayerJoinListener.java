@@ -29,8 +29,10 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         if (!langManager.hasPlayerLang(uuid)) {
+            plugin.LogDebug("Player " + player.getName() + " has no language set, setting default language.");
             String playerLocale = player.spigot().getLocale();
             String selectedLang = plugin.getConfig().getString("defaultLang");
+            plugin.LogDebug("Player locale: " + playerLocale);
             if (playerLocale == null || playerLocale.isEmpty()) {
                 playerLocale = plugin.getConfig().getString("defaultLang");
             }
@@ -43,9 +45,13 @@ public class PlayerJoinListener implements Listener {
             }
 
             selectedLang = selectedLang.toLowerCase();
+            plugin.LogDebug("Selected language: " + selectedLang);
             langManager.setPlayerLang(uuid, selectedLang);
             langManager.savePlayerLang(uuid);
             actionsManager.executeActionsPath(player, "firstJoinActions");
+        } else {
+            String playerLang = langManager.getPlayerLang(uuid);
+            plugin.LogDebug("Player " + player.getName() + " language is: " + playerLang);
         }
     }
 }
