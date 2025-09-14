@@ -30,10 +30,10 @@ public class PlayerJoinListener implements Listener {
         UUID uuid = player.getUniqueId();
         if (!langManager.hasPlayerLang(uuid)) {
             plugin.LogDebug("Player " + player.getName() + " has no language set, setting default language.");
-            String playerLocale = player.spigot().getLocale();
+            String playerLocale = player.getLocale();
             String selectedLang = plugin.getConfig().getString("defaultLang");
             plugin.LogDebug("Player locale: " + playerLocale);
-            if (playerLocale == null || playerLocale.isEmpty()) {
+            if (playerLocale.isEmpty()) {
                 playerLocale = plugin.getConfig().getString("defaultLang");
             }
             if (LangEnum.isValidCode(playerLocale)) {
