@@ -136,7 +136,8 @@ public class LangManager {
     }
 
     public String getTranslation(Player player, String key) {
-        String lang = playerLang.getOrDefault(player.getUniqueId(), defaultLang);
+        //String lang = playerLang.getOrDefault(player.getUniqueId(), defaultLang);
+        String lang = PlaceholderAPI.setPlaceholders(player,"veldoralang_lang");
         String cacheKey = lang + ":" + key.toLowerCase();
 
         if (translationCache.containsKey(cacheKey)) {

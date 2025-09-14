@@ -1,7 +1,5 @@
 package me.icegames.iglanguages;
 
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
 import me.icegames.iglanguages.command.LangCommand;
 import me.icegames.iglanguages.listener.PlayerJoinListener;
 import me.icegames.iglanguages.manager.ActionsManager;
@@ -79,7 +77,7 @@ public class IGLanguages extends JavaPlugin {
         getCommand("lang").setExecutor(new LangCommand(langManager, actionsManager, this));
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(langManager, actionsManager, this), this);
 
-        new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
+        /*new UpdateChecker(this, UpdateCheckSource.SPIGOT, SPIGOT_RESOURCE_ID)
                 .checkEveryXHours(24)
                 .setDownloadLink("https://www.spigotmc.org/resources/iglanguages.125318/")
                 .setSupportLink("https://discord.gg/qGqRxx3V2J")
@@ -104,7 +102,7 @@ public class IGLanguages extends JavaPlugin {
                     }
                 })
                 .setNotifyRequesters(false)
-                .checkNow();
+                .checkNow();*/
 
         long endTime = System.currentTimeMillis();
         System.out.println(consolePrefix + "\u001B[1;32mPlugin loaded successfully in " + (endTime - startTime) + "ms\u001B[0m");
