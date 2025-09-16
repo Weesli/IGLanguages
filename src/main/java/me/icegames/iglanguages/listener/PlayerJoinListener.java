@@ -24,7 +24,7 @@ public class PlayerJoinListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    /*@EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
@@ -53,5 +53,5 @@ public class PlayerJoinListener implements Listener {
             String playerLang = langManager.getPlayerLang(uuid);
             plugin.LogDebug("Player " + player.getName() + " language is: " + playerLang);
         }
-    }
+    }*/
 }

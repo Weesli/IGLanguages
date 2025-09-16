@@ -46,11 +46,11 @@ public class LangManager {
         if (langDirs != null) {
             for (File langDir : langDirs) {
                 String lang = langDir.getName().toLowerCase();
-                if (!LangEnum.isValidCode(lang)) {
+                /*if (!LangEnum.isValidCode(lang)) {
                     plugin.getLogger().warning("Invalid language folder: " + langDir.getName());
                     plugin.getLogger().warning("Please use a valid language code as the folder name. Codes avaliable: " + LangEnum.getAllCodes());
                     continue;
-                }
+                }*/
                 Map<String, String> langMap = new HashMap<>();
                 File[] files = langDir.listFiles((dir, name) -> name.endsWith(".yml"));
                 if (files != null) {
@@ -137,9 +137,8 @@ public class LangManager {
 
     public String getTranslation(Player player, String key) {
         //String lang = playerLang.getOrDefault(player.getUniqueId(), defaultLang);
-        String lang = PlaceholderAPI.setPlaceholders(player,"veldoralang_lang");
+        String lang = PlaceholderAPI.setPlaceholders(player,"%veldoralang_lang%");
         String cacheKey = lang + ":" + key.toLowerCase();
-
         if (translationCache.containsKey(cacheKey)) {
             String cached = translationCache.get(cacheKey);
             return PlaceholderAPI.setPlaceholders(player, cached.replace("&", "§"));
@@ -155,8 +154,7 @@ public class LangManager {
 
         translationCache.put(cacheKey, translation);
 
-        String result = PlaceholderAPI.setPlaceholders(player, translation.replace("&", "§"));
-        return result;
+        return PlaceholderAPI.setPlaceholders(player, translation.replace("&", "§"));
     }
 
     public String getLangTranslation(String lang, String key) {
